@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: book-catalog
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: book-catalog
+  template:
+    metadata:
+      labels:
+        app: book-catalog
+    spec:
+      containers:
+        - name: book-catalog
+          image: cjpcontainer.azurecr.io/book_catalog:latest  # Updated ACR image
+          ports:
+            - containerPort: 5000
+          env:
+            - name: DATABASE_URL
+              value: postgresql://cj_sit722_juu5_user:l5MuIlfcMoaejW4Et0cwoJG9rGqP7qlL@dpg-crmlebdumphs739gk8v0-a.oregon-postgres.render.com/cj_sit722_juu5  # Update as necessary
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: inventory-management
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: inventory-management
+  template:
+    metadata:
+      labels:
+        app: inventory-management
+    spec:
+      containers:
+        - name: inventory-management
+          image: cjpcontainer.azurecr.io/inventory_management:latest  # Updated ACR image
+          ports:
+            - containerPort: 5000
+          env:
+            - name: DATABASE_URL
+              value: postgresql://cj_sit722_juu5_user:l5MuIlfcMoaejW4Et0cwoJG9rGqP7qlL@dpg-crmlebdumphs739gk8v0-a.oregon-postgres.render.com/cj_sit722_juu5  # Update as necessary
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: book-catalog
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 80
+      targetPort: 5000
+  selector:
+    app: book-catalog
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: inventory-management
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 80
+      targetPort: 5000
+  selector:
+    app: inventory-management
