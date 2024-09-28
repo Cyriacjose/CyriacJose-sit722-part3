@@ -1,34 +1,41 @@
-version: '3.8'
+version: "3.8"
 
 services:
+  # Book Catalog Microservice
   book_catalog:
-    build:
-      context: ./book_catalog
-      dockerfile: Dockerfile
+    build: ./book_catalog  
+    container_name: project3-book_catalog
     ports:
-      - "5000:5000"  
-    environment:
-      - DATABASE_URL=postgresql://cj_sit722_juu5_user:l5MuIlfcMoaejW4Et0cwoJG9rGqP7qlL@dpg-crmlebdumphs739gk8v0-a.oregon-postgres.render.com/cj_sit722_juu5
+      - "8080:8080"
     depends_on:
-      - postgres
+      - db  
+    networks:
+      - library_network
 
+  # Inventory Management Microservice
   inventory_management:
-    build:
-      context: ./inventory_management  
-      dockerfile: Dockerfile
+    build: ./inventory_management  
+    container_name: project3-inventory_management
     ports:
-      - "5001:5000"  
-    environment:
-      - DATABASE_URL=postgresql://cj_sit722_juu5_user:l5MuIlfcMoaejW4Et0cwoJG9rGqP7qlL@dpg-crmlebdumphs739gk8v0-a.oregon-postgres.render.com/cj_sit722_juu5
+      - "8081:8081"
     depends_on:
-      - postgres
+      - db  
+    networks:
+      - library_network
 
-  postgres:
-    image: postgres:latest
-    restart: always
+  db:
+    image: postgres:13
+    container_name: postgres_db
     environment:
-      POSTGRES_DB: library_db  
-      POSTGRES_USER: admin  
-      POSTGRES_PASSWORD: admin  
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: library
     ports:
-      - "5432:5432"  
+      - "5432:5432"
+    networks:
+      - library_network
+
+# Define the network
+networks:
+  library_network:
+    driver: bridge
